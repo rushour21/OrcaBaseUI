@@ -1,0 +1,309 @@
+import { useState } from "react";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import {
+  Bot,
+  LayoutDashboard,
+  FileText,
+  Database,
+  MessageSquare,
+  BarChart3,
+  Users,
+  CreditCard,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Bell,
+  ChevronDown,
+  LogOut,
+  User,
+  Check,
+  Lock,
+  Globe,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { useTheme } from "@/contexts/ThemeContext";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface NavItem {
+  title: string;
+  icon: typeof LayoutDashboard;
+  href: string;
+}
+
+const navItems: NavItem[] = [
+  { title: "Overview", icon: LayoutDashboard, href: "/dashboard" },
+  { title: "Documents", icon: FileText, href: "/dashboard/documents" },
+  { title: "Database", icon: Database, href: "/dashboard/database" },
+  { title: "Internal Chat", icon: MessageSquare, href: "/dashboard/internal-chat" },
+  { title: "Website Chatbot", icon: Globe, href: "/dashboard/chatbot" },
+  { title: "Analytics", icon: BarChart3, href: "/dashboard/analytics" },
+  { title: "Team", icon: Users, href: "/dashboard/team" },
+  { title: "Billing", icon: CreditCard, href: "/dashboard/billing" },
+  { title: "Settings", icon: Settings, href: "/dashboard/settings" },
+];
+
+export default function DashboardLayout() {
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const { currentWorkspace, workspaces, switchWorkspace, isLoading } = useWorkspace();
+  const { theme, setTheme } = useTheme();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
+      </div>
+    );
+  }
+
+  if (!currentWorkspace) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background text-foreground">
+        No workspace found.
+      </div>
+    );
+  }
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return location.pathname === "/dashboard";
+    }
+    return location.pathname.startsWith(href);
+  };
+
+  const getWorkspaceColor = (color: string) => {
+    switch (color) {
+      case "brand":
+        return "bg-brand text-brand-foreground";
+      case "success":
+        return "bg-success text-success-foreground";
+      default:
+        return "bg-accent text-accent-foreground";
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex w-full">
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 h-screen border-r border-border bg-background-shell transition-all duration-300 flex flex-col",
+          collapsed ? "w-16" : "w-64"
+        )}
+      >
+        {/* Logo */}
+        <div className="flex h-16 items-center border-b border-border px-4">
+          <Link to="/dashboard" className="flex items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand">
+              <Bot className="h-5 w-5 text-brand-foreground" />
+            </div>
+            {!collapsed && (
+              <span className="text-lg font-bold text-foreground">Universal AI</span>
+            )}
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+
+            const NavContent = (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  active
+                    ? "bg-brand/10 text-brand"
+                    : "text-foreground-secondary hover:bg-background-surface hover:text-foreground"
+                )}
+              >
+                <item.icon className={cn("h-5 w-5 shrink-0", active && "text-brand")} />
+                {!collapsed && <span>{item.title}</span>}
+              </Link>
+            );
+
+            if (collapsed) {
+              return (
+                <Tooltip key={item.href} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <div>{NavContent}</div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="bg-background-surface border-border">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+
+            return NavContent;
+          })}
+        </nav>
+
+        {/* Collapse Toggle */}
+        <div className="border-t border-border p-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full justify-center text-foreground-secondary hover:text-foreground"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                <span>Collapse</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div
+        className={cn(
+          "flex-1 transition-all duration-300",
+          collapsed ? "ml-16" : "ml-64"
+        )}
+      >
+        {/* Top Bar */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-6">
+          {/* Left: Workspace Selector */}
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="gap-2 text-foreground hover:bg-background-shell"
+                >
+                  <span className="font-medium">{currentWorkspace.name}</span>
+                  <ChevronDown className="h-4 w-4 text-foreground-muted" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 bg-background-surface border-border">
+                <div className="px-2 py-1.5 text-xs font-medium text-foreground-muted uppercase tracking-wider">
+                  Workspaces
+                </div>
+                {workspaces.map((workspace) => (
+                  <DropdownMenuItem
+                    key={workspace.id}
+                    className="gap-2 cursor-pointer"
+                    onClick={() => switchWorkspace(workspace.id)}
+                  >
+                    <span className="flex-1">{workspace.name}</span>
+                    {currentWorkspace.id === workspace.id && (
+                      <Check className="h-4 w-4 text-brand" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem className="text-foreground-secondary cursor-pointer">
+                  + Create workspace
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Role Badge */}
+
+          </div>
+
+          {/* Center: Search */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-muted" />
+              <Input
+                placeholder="Search..."
+                className="pl-9 bg-background-shell border-border text-foreground placeholder:text-foreground-muted"
+              />
+            </div>
+          </div>
+
+          {/* Right: Role Switcher (Demo), Notifications & User */}
+          <div className="flex items-center gap-2">
+            {/* Demo Role Switcher */}
+
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-foreground-secondary hover:text-foreground hover:bg-background-shell"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-foreground-secondary hover:text-foreground hover:bg-background-shell"
+            >
+              <Bell className="h-5 w-5" />
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="gap-2 text-foreground hover:bg-background-shell"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/20 text-brand font-semibold">
+                    JD
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-background-surface border-border">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">John Doe</p>
+                  <p className="text-xs text-foreground-muted">john@acme.com</p>
+
+                </div>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <User className="h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem className="gap-2 text-error cursor-pointer">
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="p-6">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

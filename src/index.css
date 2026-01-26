@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Universal AI Design System - Orca Theme (Light & Dark) */
+
+.markdown-container strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+.markdown-container p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-container p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-container ol,
+.markdown-container ul {
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-container ol {
+  list-style-type: decimal;
+}
+
+.markdown-container ul {
+  list-style-type: disc;
+}
+
+.markdown-container li {
+  margin-bottom: 0.25rem;
+}
+
+@layer base {
+  :root {
+    /* --- LIGHT MODE (Defaults) --- */
+
+    /* Brand Colors - Digital Teal */
+    --brand: 188 86% 53%;
+    /* #22D3EE */
+    --brand-dark: 192 91% 36%;
+    /* #0891B2 */
+    --brand-soft: 188 86% 40%;
+    --brand-foreground: 222 47% 11%;
+    /* Orca Navy text on Teal */
+
+    /* Accent Colors - Warning/Amber */
+    --accent: 37 91% 55%;
+    /* #F5A623 */
+    --accent-foreground: 222 47% 11%;
+
+    /* Background Layers - Light Mode */
+    --background: 210 40% 98%;
+    /* #F8FAFC Ghost White */
+    /* #0F172A Orca Navy (Sidebar is ALWAYS dark) */
+    --background-surface: 0 0% 100%;
+    /* White (Cards) */
+
+    /* Foreground/Text - Light Mode */
+    --foreground: 215 25% 27%;
+    /* #334155 Slate Gray */
+    --foreground-secondary: 215 16% 47%;
+    /* #64748B Slate-500 */
+    --foreground-muted: 215 16% 47%;
+
+    /* Semantic UI Colors */
+    --card: 0 0% 100%;
+    /* White cards */
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    --primary: 188 86% 53%;
+    /* Teal */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 189 94% 82%;
+    /* Faint Cyan (Cyan-200) */
+    --secondary-foreground: 222 47% 11%;
+    /* Dark Text for Light Background */
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Status Colors - Minimal Green */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 48 97% 63%;
+    --warning-foreground: 222 47% 11%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 60%;
+    --info-foreground: 222 47% 11%;
+
+    /* Border & Input */
+    --border: 214 32% 91%;
+    /* Light Border */
+    --input: 214 32% 91%;
+    --ring: 188 86% 53%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Explicitly Dark (Orca Navy) - Consistent across modes */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 188 86% 53%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 188 86% 53%;
+
+    /* Chart Colors */
+    --chart-1: 188 86% 53%;
+    /* Teal */
+    --chart-2: 192 91% 36%;
+    /* Cyan */
+    --chart-3: 199 89% 60%;
+    /* Info blue */
+    --chart-4: 142 71% 45%;
+    /* Success green */
+    --chart-5: 0 84% 60%;
+    /* Error red */
+  }
+
+  /* --- DARK MODE --- */
+  .dark {
+    /* Brand Colors - same */
+    --brand: 188 86% 53%;
+    --brand-dark: 192 91% 36%;
+    --brand-soft: 188 86% 40%;
+    --brand-foreground: 222 47% 11%;
+
+    /* Background Layers - Dark Mode */
+    --background: 222 47% 2%;
+    /* #020617 Very Dark Navy */
+    --background-shell: 222 47% 11%;
+    /* #0F172A Orca Navy (Sidebar) */
+    --background-surface: 222 47% 11%;
+    /* Cards blend with shell */
+
+    /* Foreground/Text - Dark Mode */
+    --foreground: 210 40% 98%;
+    /* Light Text */
+    --foreground-secondary: 215 16% 65%;
+    --foreground-muted: 215 16% 47%;
+
+    /* Semantic UI Colors */
+    --card: 222 47% 11%;
+    /* Dark Cards */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 188 86% 53%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 192 91% 36%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 16% 65%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 33% 17%;
+    /* Dark Border */
+    --input: 217 33% 17%;
+    --ring: 188 86% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* REMOVED: html { @apply dark; } to allow toggling class */
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  code,
+  pre {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand to-brand-soft;
+  }
+
+  .bg-gradient-brand {
+    @apply bg-gradient-to-r from-brand to-brand-soft;
+  }
+
+  .bg-gradient-accent {
+    @apply bg-gradient-to-r from-secondary to-brand;
+    /* Use Deep Cyan */
+  }
+
+  .glow-brand {
+    box-shadow: 0 0 40px hsl(var(--brand) / 0.3);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 40px hsl(var(--secondary) / 0.3);
+  }
+
+  .shadow-elegant {
+    box-shadow: 0 10px 30px -10px hsl(var(--brand) / 0.2);
+  }
+
+  /* Animations */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .glass {
+    @apply bg-background-surface/80 backdrop-blur-xl border border-border;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:border-brand/50 hover:shadow-elegant;
+  }
+}
