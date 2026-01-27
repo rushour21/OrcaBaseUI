@@ -132,19 +132,109 @@ export default function DatabasePage() {
     }
   };
 
+  const [showToken, setShowToken] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const dockerCommand = `docker run -d \\
+  --name db-agent \\
+  -p 3001:3001 \\
+  -e AGENT_TOKEN=test_agent_token \\
+  -e DB_HOST=<your DB host name> \\
+  -e DB_PORT=5432 \\
+  -e DB_USER=<your db user> \\
+  -e DB_PASSWORD=<your db password> \\
+  -e DB_NAME=<your db name> \\
+  -e DB_SSL=true \\
+  rushour21/db-agent:latest`;
+
+  const copyDockerCommand = () => {
+    navigator.clipboard.writeText(dockerCommand);
+    setCopied(true);
+    toast.success("Docker command copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto p-6">
       {/* Header */}
-      {/* ... (keep header) ... */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Database className="h-8 w-8 text-brand" />
+          Database Agent Setup
+        </h1>
+        <p className="text-muted-foreground">
+          Deploy and configure your database agent to enable natural language queries
+        </p>
+      </div>
 
-      {/* ... (keep step 1 & 2) ... */}
+      {/* Step 1 — Deploy Database Agent */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Terminal className="h-5 w-5 text-brand" />
+            Step 1 — Deploy Database Agent
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Pull and run the database agent Docker container with your database credentials.
+              Make sure to replace the placeholder values with your actual database configuration.
+            </AlertDescription>
+          </Alert>
 
-      {/* Step 3 — Register Agent */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Docker Run Command</label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyDockerCommand}
+                className="gap-2"
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="relative">
+              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs font-mono border">
+                <code>{dockerCommand}</code>
+              </pre>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-2">
+              📝 Configuration Notes:
+            </p>
+            <ul className="text-xs text-amber-800 dark:text-amber-200 space-y-1 list-disc list-inside">
+              <li>Replace <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">&lt;your DB host name&gt;</code> with your database host</li>
+              <li>Replace <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">&lt;your db user&gt;</code> with your database username</li>
+              <li>Replace <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">&lt;your db password&gt;</code> with your database password</li>
+              <li>Replace <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">&lt;your db name&gt;</code> with your database name</li>
+              <li>Update <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">AGENT_TOKEN</code> to a secure token of your choice</li>
+              <li>The agent will be accessible at <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">http://localhost:3001</code></li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Step 2 — Register Agent */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Server className="h-5 w-5 text-brand" />
-            Step 3 — Register Agent
+            Step 2 — Register Agent
           </CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-6">
