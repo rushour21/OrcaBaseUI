@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -41,49 +41,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
-const mockTeamMembers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@acme.com",
-    role: "admin",
-    status: "active",
-    joined: "2024-01-01",
-  },
-  {
-    id: 2,
-    name: "Sarah Kim",
-    email: "sarah@acme.com",
-    role: "admin",
-    status: "active",
-    joined: "2024-01-05",
-  },
-  {
-    id: 3,
-    name: "Mike Chen",
-    email: "mike@acme.com",
-    role: "member",
-    status: "active",
-    joined: "2024-01-10",
-  },
-  {
-    id: 4,
-    name: "Emily Brown",
-    email: "emily@acme.com",
-    role: "member",
-    status: "active",
-    joined: "2024-01-12",
-  },
-  {
-    id: 5,
-    name: "Alex Johnson",
-    email: "alex@acme.com",
-    role: "member",
-    status: "pending",
-    joined: "2024-01-15",
-  },
-];
+import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { inviteApi } from "@/api/invites";
+import { workspaceApi } from "@/api/workspaces";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const roles = [
   {
@@ -100,11 +61,37 @@ const roles = [
 
 export default function Team() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [teamMembers, setTeamMembers] = useState(mockTeamMembers);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const { currentWorkspace } = useWorkspace();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Invite state
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("member");
+  const [isInviting, setIsInviting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (currentWorkspace?.id) {
+      fetchMembers();
+    }
+  }, [currentWorkspace?.id]);
+
+  const fetchMembers = async () => {
+    try {
+      setIsLoading(true);
+      const members = await workspaceApi.listMembers(currentWorkspace!.id);
+      setTeamMembers(members);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredMembers = teamMembers.filter(
     (member) =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (member.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
       member.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -116,17 +103,43 @@ export default function Team() {
     );
   };
 
+  const handleInvite = async () => {
+    if (!inviteEmail || !currentWorkspace) return;
+
+    setIsInviting(true);
+    try {
+      await inviteApi.create({
+        email: inviteEmail,
+        role: inviteRole,
+        workspaceId: currentWorkspace.id,
+      });
+      setIsDialogOpen(false);
+      setInviteEmail("");
+      setInviteRole("member");
+      fetchMembers(); // Reload list to show pending invite
+    } catch (error) {
+      console.error("Failed to invite:", error);
+      // Ideally show error toast here
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Team & Roles</h1>
           <p className="text-foreground-secondary mt-1">
             Manage team members and their permissions
           </p>
         </div>
-        <Dialog>
+      </div>
+
+      {/* Only show invite button if user is admin */}
+      {teamMembers.find((m: any) => m.email?.toLowerCase() === useAuthStore.getState().user?.email?.toLowerCase())?.role === "admin" && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-brand text-brand-foreground hover:bg-brand-dark gap-2">
               <UserPlus className="h-4 w-4" />
@@ -146,11 +159,13 @@ export default function Team() {
                 <Input
                   placeholder="colleague@company.com"
                   className="bg-background-shell border-border text-foreground"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-foreground">Role</Label>
-                <Select defaultValue="member">
+                <Select value={inviteRole} onValueChange={setInviteRole}>
                   <SelectTrigger className="bg-background-shell border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
@@ -163,15 +178,18 @@ export default function Team() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="w-full bg-brand text-brand-foreground hover:bg-brand-dark gap-2">
+              <Button
+                className="w-full bg-brand text-brand-foreground hover:bg-brand-dark gap-2"
+                onClick={handleInvite}
+                disabled={isInviting}
+              >
                 <Mail className="h-4 w-4" />
-                Send Invitation
+                {isInviting ? "Sending..." : "Send Invitation"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-
+      )}
       {/* Role Descriptions */}
       <div className="grid gap-4 md:grid-cols-2">
         {roles.map((role) => (
@@ -217,75 +235,89 @@ export default function Team() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredMembers.map((member) => (
-              <TableRow key={member.id} className="border-border hover:bg-background-shell/50">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/20 text-brand font-semibold">
-                      {member.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{member.name}</p>
-                      <p className="text-sm text-foreground-muted">{member.email}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={member.role}
-                    onValueChange={(value) => updateRole(member.id, value)}
-                  >
-                    <SelectTrigger className="w-[150px] bg-background-shell border-border text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background-surface border-border">
-                      {roles.map((role) => (
-                        <SelectItem key={role.value} value={role.value}>
-                          {role.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  {member.status === "active" ? (
-                    <StatusBadge status="success">Active</StatusBadge>
-                  ) : (
-                    <StatusBadge status="warning">Pending</StatusBadge>
-                  )}
-                </TableCell>
-                <TableCell className="text-foreground-secondary">{member.joined}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-foreground-secondary hover:text-foreground"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-background-surface border-border"
-                    >
-                      <DropdownMenuItem className="gap-2">
-                        <Mail className="h-4 w-4" />
-                        Resend invite
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-error">
-                        <Trash2 className="h-4 w-4" />
-                        Remove
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-foreground-secondary">
+                  Loading members...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : filteredMembers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-foreground-secondary">
+                  No members found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredMembers.map((member) => (
+                <TableRow key={member.id} className="border-border hover:bg-background-shell/50">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/20 text-brand font-semibold">
+                        {(member.name || member.email).split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{member.name || member.email}</p>
+                        {member.name && <p className="text-sm text-foreground-muted">{member.email}</p>}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={member.role}
+                      onValueChange={(value) => updateRole(member.id, value)}
+                    >
+                      <SelectTrigger className="w-[150px] bg-background-shell border-border text-foreground">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background-surface border-border">
+                        {roles.map((role) => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {role.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    {member.status === "active" ? (
+                      <StatusBadge status="success">Active</StatusBadge>
+                    ) : (
+                      <StatusBadge status="warning">Pending</StatusBadge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-foreground-secondary">{member.joined}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-foreground-secondary hover:text-foreground"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-background-surface border-border"
+                      >
+                        <DropdownMenuItem className="gap-2">
+                          <Mail className="h-4 w-4" />
+                          Resend invite
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 text-error">
+                          <Trash2 className="h-4 w-4" />
+                          Remove
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
-    </div>
+    </div >
   );
 }

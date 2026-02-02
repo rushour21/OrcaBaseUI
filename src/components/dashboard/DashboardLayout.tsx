@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Bot,
@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuthStore } from "@/store/useAuthStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { inviteApi } from "@/api/invites";
+import api from "@/api/axios"; // Keep for other potential usages or remove if unused
 
 interface NavItem {
   title: string;
@@ -63,8 +66,53 @@ const navItems: NavItem[] = [
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentWorkspace, workspaces, switchWorkspace, isLoading } = useWorkspace();
   const { theme, setTheme } = useTheme();
+  const { user, logout } = useAuthStore();
+  const [invites, setInvites] = useState([]);
+
+  useEffect(() => {
+    fetchInvites();
+  }, []);
+
+  const fetchInvites = async () => {
+    try {
+      const data = await inviteApi.listMyInvites();
+      setInvites(data);
+    } catch (err) {
+      console.error("Failed to fetch invites", err);
+    }
+  };
+
+  const handleAcceptInvite = async (inviteId: string) => {
+    try {
+      await inviteApi.accept(inviteId);
+      // Remove from list
+      setInvites(invites.filter((i: any) => i.id !== inviteId));
+      // Optionally reload workspaces or switch to new workspace
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to accept invite", err);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    const email = user.email;
+    const namePart = email.split("@")[0];
+    const parts = namePart.split(/[._-]/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return namePart.substring(0, 2).toUpperCase();
+  };
 
   if (isLoading) {
     return (
@@ -255,13 +303,54 @@ export default function DashboardLayout() {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-foreground-secondary hover:text-foreground hover:bg-background-shell"
-            >
-              <Bell className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-foreground-secondary hover:text-foreground hover:bg-background-shell"
+                >
+                  <Bell className="h-5 w-5" />
+                  {invites.length > 0 && (
+                    <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-error" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 bg-background-surface border-border">
+                <div className="px-4 py-3 font-medium border-b border-border">
+                  Notifications
+                </div>
+                {invites.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-sm text-foreground-secondary">
+                    No new notifications
+                  </div>
+                ) : (
+                  <div className="max-h-96 overflow-y-auto">
+                    {invites.map((invite: any) => (
+                      <div key={invite.id} className="p-4 border-b border-border last:border-0 hover:bg-background-shell/50 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 space-y-1">
+                            <p className="text-sm font-medium text-foreground">
+                              Invitation to join <span className="text-brand">{invite.workspace_name}</span>
+                            </p>
+                            <p className="text-xs text-foreground-secondary">
+                              Role: <span className="capitalize">{invite.role}</span>
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-brand text-brand-foreground hover:bg-brand-dark"
+                            onClick={() => handleAcceptInvite(invite.id)}
+                          >
+                            Accept
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -270,14 +359,14 @@ export default function DashboardLayout() {
                   className="gap-2 text-foreground hover:bg-background-shell"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/20 text-brand font-semibold">
-                    JD
+                    {getUserInitials()}
                   </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-background-surface border-border">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">John Doe</p>
-                  <p className="text-xs text-foreground-muted">john@acme.com</p>
+                  <p className="text-sm font-medium">{user?.email || "User"}</p>
+                  <p className="text-xs text-foreground-muted">{user?.email || ""}</p>
 
                 </div>
                 <DropdownMenuSeparator className="bg-border" />
@@ -285,12 +374,17 @@ export default function DashboardLayout() {
                   <User className="h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <Settings className="h-4 w-4" />
-                  Settings
+                <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
+                  <Link to="/dashboard/settings">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
-                <DropdownMenuItem className="gap-2 text-error cursor-pointer">
+                <DropdownMenuItem
+                  className="gap-2 text-error cursor-pointer"
+                  onClick={handleLogout}
+                >
                   <LogOut className="h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

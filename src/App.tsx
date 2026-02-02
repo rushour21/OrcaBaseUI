@@ -29,6 +29,7 @@ import Billing from "./pages/dashboard/Billing";
 import SettingsPage from "./pages/dashboard/Settings";
 import NotFound from "./pages/NotFound";
 import EmbedChat from "./pages/EmbedChat";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/security" element={<Security />} />
               <Route path="/docs" element={<Docs />} />
               <Route path="/embed/chat" element={<EmbedChat />} />
+              <Route path="/oauth-success" element={<OAuthSuccess />} />
 
               {/* Dashboard Pages */}
               <Route path="/dashboard" element={<DashboardLayout />}>

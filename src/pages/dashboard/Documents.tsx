@@ -269,6 +269,7 @@ function ChunkPreviewDrawer({
 export default function Documents() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [dragActive, setDragActive] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
@@ -280,13 +281,16 @@ export default function Documents() {
   const fetchDocuments = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const res = await api.get("/api/rag/documents");
-      setDocuments(res.data);
-    } catch (error) {
+      setDocuments(res.data || []);
+    } catch (error: any) {
       console.error("Failed to fetch documents", error);
+      const errorMessage = error.response?.data?.error || error.message || "Failed to fetch documents";
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: "Failed to fetch documents",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -478,8 +482,8 @@ export default function Documents() {
       {/* Upload Zone */}
       <div
         className={`rounded-xl border-2 border-dashed p-8 text-center transition-all cursor-pointer ${dragActive
-            ? "border-brand bg-brand/5"
-            : "border-border hover:border-brand/50"
+          ? "border-brand bg-brand/5"
+          : "border-border hover:border-brand/50"
           }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -522,18 +526,62 @@ export default function Documents() {
       {/* Documents Table */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-brand" />
+          <div className="flex flex-col items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-brand mb-3" />
+            <p className="text-sm text-foreground-secondary">Loading documents...</p>
           </div>
-        ) : filteredDocs.length === 0 ? (
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <div className="rounded-full bg-error/10 p-4 mb-4">
+              <AlertCircle className="h-8 w-8 text-error" />
+            </div>
+            <h3 className="text-lg font-medium text-foreground mb-2">Failed to load documents</h3>
+            <p className="text-foreground-secondary max-w-md mb-4">
+              {error}
+            </p>
+            <Button
+              onClick={fetchDocuments}
+              variant="outline"
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        ) : documents.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <div className="rounded-full bg-background-shell p-4 mb-4">
               <FileText className="h-8 w-8 text-foreground-muted" />
             </div>
-            <h3 className="text-lg font-medium text-foreground">No documents found</h3>
-            <p className="text-foreground-secondary max-w-sm mt-1">
-              Upload your first document to get started with the AI assistant.
+            <h3 className="text-lg font-medium text-foreground mb-2">No documents yet</h3>
+            <p className="text-foreground-secondary max-w-sm mb-4">
+              Upload your first document to get started with the AI assistant. Supported formats include PDF, DOCX, TXT, and MD.
             </p>
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-brand text-brand-foreground hover:bg-brand-dark gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Document
+            </Button>
+          </div>
+        ) : filteredDocs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <div className="rounded-full bg-background-shell p-4 mb-4">
+              <Search className="h-8 w-8 text-foreground-muted" />
+            </div>
+            <h3 className="text-lg font-medium text-foreground mb-2">No documents found</h3>
+            <p className="text-foreground-secondary max-w-sm mb-4">
+              No documents match your search query "{searchQuery}". Try a different search term.
+            </p>
+            <Button
+              onClick={() => setSearchQuery("")}
+              variant="outline"
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              Clear Search
+            </Button>
           </div>
         ) : (
           <Table>
