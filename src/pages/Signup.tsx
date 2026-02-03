@@ -74,7 +74,7 @@ export default function Signup() {
               <Button
                 variant="outline"
                 className="w-full border-border text-foreground hover:bg-background-shell gap-2"
-                onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
@@ -99,7 +99,7 @@ export default function Signup() {
               <Button
                 variant="outline"
                 className="w-full border-border text-foreground hover:bg-background-shell gap-2"
-                onClick={() => window.location.href = 'http://localhost:3000/auth/github'}
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`}
               >
                 <Github className="h-4 w-4" />
                 Continue with GitHub
