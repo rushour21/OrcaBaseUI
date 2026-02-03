@@ -189,6 +189,16 @@
 
   /* REMOVED: html { @apply dark; } to allow toggling class */
 
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: hsl(var(--brand));
+    color: white;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
@@ -227,7 +237,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand to-brand-soft;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand via-brand-soft to-accent;
   }
 
   .bg-gradient-brand {
@@ -249,6 +259,24 @@
 
   .shadow-elegant {
     box-shadow: 0 10px 30px -10px hsl(var(--brand) / 0.2);
+  }
+
+  /* Glassmorphism */
+  .glass-card {
+    @apply backdrop-blur-md bg-background-surface/80 border border-white/10;
+  }
+
+  /* Bento Grid Utilities */
+  .bento-large {
+    @apply col-span-2 row-span-2;
+  }
+
+  .bento-horizontal {
+    @apply col-span-2 row-span-1;
+  }
+
+  .bento-square {
+    @apply col-span-1 row-span-1;
   }
 
   /* Animations */
@@ -285,6 +313,36 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  /* Marquee animation */
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Data stream animation */
+  .animate-stream {
+    animation: stream 3s ease-in-out infinite;
+  }
+
+  @keyframes stream {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+
+    100% {
+      stroke-dashoffset: 0;
     }
   }
 
