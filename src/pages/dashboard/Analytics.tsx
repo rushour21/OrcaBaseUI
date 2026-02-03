@@ -7,10 +7,13 @@ import {
   Loader2,
   Globe,
   MessageSquare,
+  Menu,
+  X,
 } from "lucide-react";
 import { sendChatQuery, approveChatSql, getSessions, getSessionMessages, toggleWebSearch as toggleWebSearchAPI, createSession as createSessionAPI } from "@/api/chat";
 import { toast } from "sonner";
 import { ChatBubble } from "@/components/ui/ChatBubble";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface Message {
   role: "user" | "assistant";
@@ -33,6 +36,8 @@ export default function Analytics() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -168,11 +173,36 @@ export default function Analytics() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative">
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sessions Sidebar */}
-      <div className="w-72 border-r border-border bg-background flex flex-col">
+      <div className={`
+        ${isMobile ? 'fixed inset-y-0 left-0 z-50 w-72' : 'w-72'}
+        ${isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+        transition-transform duration-300
+        border-r border-border bg-background flex flex-col
+      `}>
         <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-semibold mb-3">Your chats</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">Your chats</h2>
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(false)}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
           <Button
             onClick={createNewSession}
             className="w-full bg-brand hover:bg-brand-dark"
@@ -190,6 +220,7 @@ export default function Analytics() {
                 setActiveSessionId(session.id);
                 setWebSearchEnabled(session.web_search_enabled);
                 loadMessages(session.id);
+                if (isMobile) setSidebarOpen(false);
               }}
               className={`w-full text-left px-4 py-3 border-b border-border transition-colors hover:bg-muted ${activeSessionId === session.id
                 ? "bg-muted border-l-4 border-l-brand"
@@ -219,8 +250,20 @@ export default function Analytics() {
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="border-b border-border p-4 flex items-center justify-between bg-background-shell">
-          <h1 className="text-xl font-semibold">Database Chat</h1>
+        <div className="border-b border-border p-3 md:p-4 flex items-center justify-between bg-background-shell">
+          <div className="flex items-center gap-2">
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(true)}
+                className="h-8 w-8"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            )}
+            <h1 className="text-lg md:text-xl font-semibold">Database Chat</h1>
+          </div>
 
           <Button
             variant="outline"
@@ -228,18 +271,18 @@ export default function Analytics() {
             onClick={toggleWebSearch}
             className={webSearchEnabled ? "bg-brand text-white" : ""}
           >
-            <Globe className="h-4 w-4 mr-2" />
-            Web Search: {webSearchEnabled ? "ON" : "OFF"}
+            <Globe className="h-4 w-4 mr-0 md:mr-2" />
+            <span className="hidden md:inline">Web Search: {webSearchEnabled ? "ON" : "OFF"}</span>
           </Button>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground mt-20">
-              <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Start a conversation about your database</p>
-              <p className="text-sm mt-2">I'll generate SQL queries for your approval</p>
+            <div className="text-center text-muted-foreground mt-12 md:mt-20 px-4">
+              <MessageSquare className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-sm md:text-base">Start a conversation about your database</p>
+              <p className="text-xs md:text-sm mt-2">I'll generate SQL queries for your approval</p>
             </div>
           ) : (
             <>
@@ -273,20 +316,21 @@ export default function Analytics() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-border p-4 bg-background-shell">
+        <div className="border-t border-border p-3 md:p-4 bg-background-shell">
           <div className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
-              placeholder="Ask a question about your database..."
+              placeholder="Ask about your database..."
               disabled={isGenerating}
-              className="flex-1"
+              className="flex-1 text-sm md:text-base"
             />
             <Button
               onClick={handleSendMessage}
               disabled={isGenerating || !input.trim()}
-              className="bg-brand hover:bg-brand-dark"
+              className="bg-brand hover:bg-brand-dark shrink-0"
+              size="icon"
             >
               {isGenerating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

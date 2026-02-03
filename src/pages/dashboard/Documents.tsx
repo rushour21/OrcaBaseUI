@@ -391,12 +391,12 @@ export default function Documents() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Documents</h1>
-          <p className="text-foreground-secondary mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Documents</h1>
+          <p className="text-foreground-secondary mt-1 text-sm md:text-base">
             Upload and manage documents for your AI assistant
           </p>
         </div>
@@ -411,20 +411,21 @@ export default function Documents() {
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="bg-brand text-brand-foreground hover:bg-brand-dark gap-2"
+            className="bg-brand text-brand-foreground hover:bg-brand-dark gap-2 w-full sm:w-auto"
           >
             {isUploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Upload className="h-4 w-4" />
             )}
-            {isUploading ? "Uploading..." : "Upload Documents"}
+            <span className="hidden sm:inline">{isUploading ? "Uploading..." : "Upload Documents"}</span>
+            <span className="sm:hidden">{isUploading ? "Uploading..." : "Upload"}</span>
           </Button>
         </div>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -523,7 +524,7 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Documents Table */}
+      {/* Documents Table/Cards */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-12">
@@ -584,92 +585,164 @@ export default function Documents() {
             </Button>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-foreground-secondary">Name</TableHead>
-                <TableHead className="text-foreground-secondary">Type</TableHead>
-                <TableHead className="text-foreground-secondary">Size</TableHead>
-                <TableHead className="text-foreground-secondary">Chunks</TableHead>
-                <TableHead className="text-foreground-secondary">Status</TableHead>
-                <TableHead className="text-foreground-secondary">Uploaded</TableHead>
-                <TableHead className="text-foreground-secondary w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDocs.map((doc) => (
-                <TableRow
-                  key={doc.id}
-                  className="border-border hover:bg-background-shell/50 cursor-pointer"
-                  onClick={() => handleViewChunks(doc)}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-brand/10 p-2">
-                        <FileText className="h-4 w-4 text-brand" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{doc.name}</p>
-                        <p className="text-xs text-foreground-muted">{doc.pages ? `${doc.pages} pages` : ''}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-foreground-secondary">{doc.file_type || 'PDF'}</TableCell>
-                  <TableCell className="text-foreground-secondary">{doc.size || '—'}</TableCell>
-                  <TableCell className="text-foreground-secondary">{doc.chunks || "—"}</TableCell>
-                  <TableCell>
-                    <ProcessingIndicator status={doc.status} progress={doc.processingProgress} />
-                  </TableCell>
-                  <TableCell className="text-foreground-secondary text-sm">
-                    {new Date(doc.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-foreground-secondary hover:text-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewChunks(doc);
-                        }}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-foreground-secondary">Name</TableHead>
+                    <TableHead className="text-foreground-secondary">Type</TableHead>
+                    <TableHead className="text-foreground-secondary">Size</TableHead>
+                    <TableHead className="text-foreground-secondary">Chunks</TableHead>
+                    <TableHead className="text-foreground-secondary">Status</TableHead>
+                    <TableHead className="text-foreground-secondary">Uploaded</TableHead>
+                    <TableHead className="text-foreground-secondary w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredDocs.map((doc) => (
+                    <TableRow
+                      key={doc.id}
+                      className="border-border hover:bg-background-shell/50 cursor-pointer"
+                      onClick={() => handleViewChunks(doc)}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-lg bg-brand/10 p-2">
+                            <FileText className="h-4 w-4 text-brand" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{doc.name}</p>
+                            <p className="text-xs text-foreground-muted">{doc.pages ? `${doc.pages} pages` : ''}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-foreground-secondary">{doc.file_type || 'PDF'}</TableCell>
+                      <TableCell className="text-foreground-secondary">{doc.size || '—'}</TableCell>
+                      <TableCell className="text-foreground-secondary">{doc.chunks || "—"}</TableCell>
+                      <TableCell>
+                        <ProcessingIndicator status={doc.status} progress={doc.processingProgress} />
+                      </TableCell>
+                      <TableCell className="text-foreground-secondary text-sm">
+                        {new Date(doc.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-foreground-secondary hover:text-foreground"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewChunks(doc);
+                            }}
                           >
-                            <MoreVertical className="h-4 w-4" />
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="bg-background-surface border-border"
-                        >
-                          <DropdownMenuItem className="gap-2" onClick={() => handleViewChunks(doc)}>
-                            <Eye className="h-4 w-4" />
-                            View content
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-error" onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(doc.id);
-                          }}>
-                            <Trash2 className="h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-foreground-secondary hover:text-foreground"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="bg-background-surface border-border"
+                            >
+                              <DropdownMenuItem className="gap-2" onClick={() => handleViewChunks(doc)}>
+                                <Eye className="h-4 w-4" />
+                                View content
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2 text-error" onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(doc.id);
+                              }}>
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-border">
+              {filteredDocs.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="p-4 hover:bg-background-shell/50 cursor-pointer transition-colors"
+                  onClick={() => handleViewChunks(doc)}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="rounded-lg bg-brand/10 p-2 shrink-0">
+                        <FileText className="h-4 w-4 text-brand" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{doc.name}</p>
+                        <p className="text-xs text-foreground-muted mt-0.5">
+                          {doc.file_type || 'PDF'} • {doc.size || '—'}
+                        </p>
+                      </div>
                     </div>
-                  </TableCell>
-                </TableRow>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-foreground-secondary hover:text-foreground shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-background-surface border-border"
+                      >
+                        <DropdownMenuItem className="gap-2" onClick={() => handleViewChunks(doc)}>
+                          <Eye className="h-4 w-4" />
+                          View content
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 text-error" onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(doc.id);
+                        }}>
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <Layers className="h-3.5 w-3.5 text-foreground-muted" />
+                      <span className="text-foreground-secondary">{doc.chunks || "—"} chunks</span>
+                    </div>
+                    <div className="flex-1">
+                      <ProcessingIndicator status={doc.status} progress={doc.processingProgress} />
+                    </div>
+                  </div>
+
+                  <div className="mt-2 text-xs text-foreground-muted">
+                    {new Date(doc.created_at).toLocaleDateString()}
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         )}
       </div>
 

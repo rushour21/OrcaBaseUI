@@ -23,13 +23,15 @@ import {
   Globe,
   Sun,
   Moon,
-  X, // Added X
-  Loader2, // Added Loader2
+  X,
+  Loader2,
+  Menu,
 } from "lucide-react";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuthStore } from "@/store/useAuthStore";
-import Logo from "@/assets/Logo.png"; // Added this import
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import Logo from "@/assets/Logo.png";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +70,8 @@ const navItems: NavItem[] = [
 
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const location = useLocation();
   const navigate = useNavigate();
   const { currentWorkspace, workspaces, switchWorkspace, isLoading } = useWorkspace();
@@ -153,11 +157,22 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-background flex w-full">
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden transition-opacity duration-200"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={cn(
           "fixed left-0 top-0 z-40 h-screen border-r border-border bg-background-shell transition-all duration-300 flex flex-col",
-          collapsed ? "w-16" : "w-64"
+          collapsed ? "w-16" : "w-64",
+          // Mobile: slide in/out
+          "md:translate-x-0",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
@@ -232,13 +247,25 @@ export default function DashboardLayout() {
       <div
         className={cn(
           "flex-1 transition-all duration-300",
-          collapsed ? "ml-16" : "ml-64"
+          // Desktop: margin for sidebar
+          "md:ml-64",
+          collapsed && "md:ml-16"
         )}
       >
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-6">
-          {/* Left: Workspace Selector */}
-          <div className="flex items-center gap-4">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4 md:px-6">
+          {/* Left: Mobile Menu + Workspace Selector */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Hamburger Menu (Mobile Only) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-foreground-secondary hover:text-foreground"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

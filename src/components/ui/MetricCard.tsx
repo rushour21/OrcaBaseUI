@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface MetricCardProps {
   title: string;
@@ -36,13 +37,18 @@ export function MetricCard({
   className,
 }: MetricCardProps) {
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ duration: 0.2 }}
       className={cn(
-        "rounded-xl border border-border bg-card p-6 card-hover",
+        "group relative overflow-hidden rounded-xl border border-border bg-card p-6 card-hover transition-shadow hover:shadow-xl",
         className
       )}
     >
-      <div className="flex items-start justify-between">
+      {/* Gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      <div className="relative flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm text-foreground-secondary">{title}</p>
           <p className="text-3xl font-bold text-foreground">{value}</p>
@@ -52,15 +58,17 @@ export function MetricCard({
             </p>
           )}
         </div>
-        <div
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ duration: 0.2 }}
           className={cn(
-            "rounded-lg p-3",
+            "rounded-lg p-3 transition-all",
             iconColorClasses[iconColor]
           )}
         >
           <Icon className="h-5 w-5" />
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -12,6 +12,7 @@ import Logo from "@/assets/Logo.png";
 import { motion } from "framer-motion";
 import Lenis from "lenis";
 import { useEffect } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   FileText,
   Database,
@@ -29,6 +30,8 @@ import {
   Headphones,
   Check,
   GitBranch,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 const features = [
@@ -190,6 +193,7 @@ const plans = [
 ];
 
 export default function Landing() {
+  const { theme, setTheme } = useTheme();
   // Lenis smooth scroll
   useEffect(() => {
     const lenis = new Lenis({
@@ -252,6 +256,18 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-foreground-secondary hover:text-foreground hover:bg-background-shell"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
             <Link to="/login" className="hidden sm:block">
               <Button
                 variant="ghost"

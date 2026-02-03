@@ -5,6 +5,7 @@ import { StepIndicator } from "@/components/ui/StepIndicator";
 import { Link } from "react-router-dom";
 import api from "@/api/axios";
 import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 import {
   MessageSquare,
   FileText,
@@ -52,48 +53,83 @@ export default function Overview() {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-3xl font-bold text-foreground">Overview</h1>
         <p className="text-foreground-secondary mt-1">
           Welcome back! Here's what's happening with your AI assistant.
         </p>
-      </div>
+      </motion.div>
 
       {/* Metrics Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <MetricCard
-          title="Total Queries"
-          value={data?.totalQueries?.toString() || "0"}
-          change="All time"
-          changeType="neutral"
-          icon={MessageSquare}
-          iconColor="brand"
-        />
-        <MetricCard
-          title="Documents Indexed"
-          value={data?.documentsIndexed?.toString() || "0"}
-          change="Active knowledge base"
-          changeType="positive"
-          icon={FileText}
-          iconColor="accent"
-        />
-        <MetricCard
-          title="System Status"
-          value="Online"
-          change="RAG Pipeline Active"
-          changeType="positive"
-          icon={Activity}
-          iconColor="success"
-        />
-      </div>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      >
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Total Queries"
+            value={data?.totalQueries?.toString() || "0"}
+            change="All time"
+            changeType="neutral"
+            icon={MessageSquare}
+            iconColor="brand"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Documents Indexed"
+            value={data?.documentsIndexed?.toString() || "0"}
+            change="Active knowledge base"
+            changeType="positive"
+            icon={FileText}
+            iconColor="accent"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="System Status"
+            value="Online"
+            change="RAG Pipeline Active"
+            changeType="positive"
+            icon={Activity}
+            iconColor="success"
+          />
+        </motion.div>
+      </motion.div>
 
       {/* Chart & Quick Actions */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Chart */}
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="lg:col-span-2 rounded-xl border border-border bg-card p-6 hover:shadow-lg transition-shadow"
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Query Trends</h2>
@@ -139,47 +175,64 @@ export default function Overview() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quick Actions */}
-        <div className="rounded-xl border border-border bg-card p-6">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="rounded-xl border border-border bg-card p-6 hover:shadow-lg transition-shadow"
+        >
           <h2 className="text-lg font-semibold text-foreground mb-6">Quick Actions</h2>
           <div className="space-y-3">
             <Link to="/dashboard/documents">
-              <Button
-                variant="outline"
-                className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
-              >
-                <div className="flex items-center gap-3">
-                  <Upload className="h-4 w-4 text-brand" />
-                  <span>Upload documents</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Button>
+              <motion.div whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-brand/10 p-2">
+                      <Upload className="h-4 w-4 text-brand" />
+                    </div>
+                    <span>Upload documents</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              </motion.div>
             </Link>
             <Link to="/dashboard/database">
-              <Button
-                variant="outline"
-                className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
-              >
-                <div className="flex items-center gap-3">
-                  <Plug className="h-4 w-4 text-accent" />
-                  <span>Connect database</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Button>
+              <motion.div whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-accent/10 p-2">
+                      <Plug className="h-4 w-4 text-accent" />
+                    </div>
+                    <span>Connect database</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              </motion.div>
             </Link>
             <Link to="/dashboard/chatbot">
-              <Button
-                variant="outline"
-                className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
-              >
-                <div className="flex items-center gap-3">
-                  <Settings className="h-4 w-4 text-info" />
-                  <span>Configure chatbot</span>
-                </div>
-                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Button>
+              <motion.div whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border-border text-foreground hover:bg-background-shell group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-info/10 p-2">
+                      <Settings className="h-4 w-4 text-info" />
+                    </div>
+                    <span>Configure chatbot</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              </motion.div>
             </Link>
           </div>
 
@@ -191,7 +244,13 @@ export default function Overview() {
                 <p className="text-sm text-foreground-muted">No activity yet</p>
               ) : (
                 data?.recentActivity?.map((activity: any, i: number) => (
-                  <div key={i} className="flex items-start gap-3">
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-start gap-3 p-2 rounded-lg hover:bg-background-shell/50 transition-colors"
+                  >
                     <div className={`mt-1 h-2 w-2 rounded-full ${activity.type === 'query' ? 'bg-brand' : 'bg-accent'}`} />
                     <div>
                       <p className="text-sm text-foreground">
@@ -201,12 +260,12 @@ export default function Overview() {
                         "{activity.description}" • {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
