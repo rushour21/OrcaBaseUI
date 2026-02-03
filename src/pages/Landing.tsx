@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/ui/FeatureCard";
 import { PlanCard } from "@/components/ui/PlanCard";
 import { Link } from "react-router-dom";
-import Logo from "@/assets/logo.png";
+import Logo from "@/assets/Logo.png";
 import {
   FileText,
   Database,
