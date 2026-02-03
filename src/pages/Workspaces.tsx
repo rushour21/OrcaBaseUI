@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Logo from "@/assets/Logo.png";
 import {
   Building2,
   Plus,
@@ -118,13 +119,11 @@ export default function Workspaces() {
       <header className="relative z-10 w-full border-b border-border bg-background/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-brand flex items-center justify-center text-brand-foreground font-bold">
-              AI
-            </div>
-            <span className="font-bold text-lg text-foreground">Universal AI</span>
+            <img src={Logo} alt="OrcaBase Logo" className="h-8 w-8 md:h-10 md:w-10 rounded-lg" />
+            <p className="text-base md:text-lg font-bold text-foreground">ORCA<span className="text-gradient">BASE</span></p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -172,7 +171,7 @@ export default function Workspaces() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-background-shell border border-border">
+            <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-background-shell border border-border">
               <div className="h-6 w-6 rounded-full bg-gradient-brand flex items-center justify-center text-[10px] text-white font-bold">
                 {user?.email?.[0].toUpperCase()}
               </div>
@@ -184,8 +183,8 @@ export default function Workspaces() {
               onClick={() => { logout(); navigate("/login"); }}
               className="text-muted-foreground hover:text-foreground"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              <LogOut className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Sign Out</span>
             </Button>
           </div>
         </div>
@@ -195,10 +194,10 @@ export default function Workspaces() {
 
         {/* Welcome Section */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
             Welcome back
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Select a workspace to prompt, manage, and collaborate with your AI agents.
           </p>
         </div>

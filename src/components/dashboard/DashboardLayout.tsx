@@ -23,10 +23,13 @@ import {
   Globe,
   Sun,
   Moon,
+  X, // Added X
+  Loader2, // Added Loader2
 } from "lucide-react";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuthStore } from "@/store/useAuthStore";
+import Logo from "@/assets/Logo.png"; // Added this import
 
 import { Button } from "@/components/ui/button";
 import {
@@ -159,12 +162,10 @@ export default function DashboardLayout() {
       >
         {/* Logo */}
         <div className="flex h-16 items-center border-b border-border px-4">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand">
-              <Bot className="h-5 w-5 text-brand-foreground" />
-            </div>
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <img src={Logo} alt="OrcaBase Logo" className="h-8 w-8 shrink-0 rounded-lg" />
             {!collapsed && (
-              <span className="text-lg font-bold text-foreground">Universal AI</span>
+              <p className="text-lg font-bold text-foreground">ORCA<span className="text-gradient">BASE</span></p>
             )}
           </Link>
         </div>

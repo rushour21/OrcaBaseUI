@@ -182,12 +182,12 @@ export default function Landing() {
       {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center">
-            <img src={Logo} alt="Logo" className="h-[100px] w-[100px]" />
-            <p className="text-lg font-bold text-foreground"> ORCA<span className="text-gradient">BASE</span></p>
+          <Link to="/" className="flex items-center gap-2">
+            <img src={Logo} alt="OrcaBase Logo" className="h-10 w-10 md:h-12 md:w-12 rounded-lg" />
+            <p className="text-lg md:text-xl font-bold text-foreground">ORCA<span className="text-gradient">BASE</span></p>
           </Link>
 
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="hidden items-center gap-4 lg:gap-8 md:flex">
             <Link to="/features" className="text-sm text-foreground-secondary hover:text-foreground transition-colors">
               Features
             </Link>
@@ -202,14 +202,14 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link to="/login">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Link to="/login" className="hidden sm:block">
               <Button variant="ghost" className="text-foreground-secondary hover:text-foreground">
                 Log in
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="bg-brand text-brand-foreground hover:bg-brand-dark">
+              <Button className="bg-brand text-brand-foreground hover:bg-brand-dark text-sm md:text-base">
                 Start Free
               </Button>
             </Link>
