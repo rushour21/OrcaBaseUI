@@ -13,6 +13,7 @@ import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
 import Security from "./pages/Security";
 import Docs from "./pages/Docs";
+import Documentation from "./pages/Documentation";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
 import Documents from "./pages/dashboard/Documents";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/features" element={<Features />} />
               <Route path="/security" element={<Security />} />
               <Route path="/docs" element={<Docs />} />
+              <Route path="/documentation" element={<Documentation />} />
               <Route path="/embed/chat" element={<EmbedChat />} />
               <Route path="/oauth-success" element={<OAuthSuccess />} />
 

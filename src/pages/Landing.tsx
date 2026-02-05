@@ -242,10 +242,10 @@ export default function Landing() {
               Pricing
             </Link>
             <Link
-              to="/docs"
+              to="/documentation"
               className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
             >
-              Docs
+              Documentation
             </Link>
             <Link
               to="/security"

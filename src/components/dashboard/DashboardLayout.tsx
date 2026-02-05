@@ -26,6 +26,7 @@ import {
   X,
   Loader2,
   Menu,
+  BookOpen,
 } from "lucide-react";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -60,11 +61,12 @@ const navItems: NavItem[] = [
   { title: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Documents", icon: FileText, href: "/dashboard/documents" },
   { title: "Database", icon: Database, href: "/dashboard/database" },
-  { title: "Internal Chat", icon: MessageSquare, href: "/dashboard/internal-chat" },
+  { title: "Customer Queries", icon: MessageSquare, href: "/dashboard/internal-chat" },
   { title: "Website Chatbot", icon: Globe, href: "/dashboard/chatbot" },
-  { title: "Analytics", icon: BarChart3, href: "/dashboard/analytics" },
+  { title: "Database Chat", icon: BarChart3, href: "/dashboard/analytics" },
   { title: "Team", icon: Users, href: "/dashboard/team" },
   { title: "Billing", icon: CreditCard, href: "/dashboard/billing" },
+  { title: "Documentation", icon: BookOpen, href: "/documentation" },
   { title: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
